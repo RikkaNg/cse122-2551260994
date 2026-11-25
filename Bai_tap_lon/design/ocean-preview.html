@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TinHocPortal – Ocean Depth Design System Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-abyss: #020817;
+      --bg-deep: #071426;
+      --bg-surface: #0d2137;
+      --bg-surface-2: #132e4a;
+      --border-ocean: rgba(56, 189, 248, 0.22);
+      --text-primary: #f0f9ff;
+      --text-secondary: #94b8d7;
+      --text-muted: #6487a8;
+
+      /* Active zone theme (dynamic via JS) */
+      --accent: #0ea5e9;
+      --accent-soft: rgba(14, 165, 233, 0.16);
+      --zone-bg: linear-gradient(180deg, #0b3c5d 0%, #071426 100%);
+
+      /* 5 Ocean Zones */
+      --zone-1: #0ea5e9;
+      --zone-2: #3b82f6;
+      --zone-3: #06b6d4;
+      --zone-4: #14b8a6;
+      --zone-5: #8b5cf6;
+
+      /* Status colors */
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #f43f5e;
+      --disabled: #475569;
+    }
+
+    body.light-mode {
+      --bg-abyss: #e0f2fe;
+      --bg-deep: #f0f9ff;
+      --bg-surface: #ffffff;
+      --bg-surface-2: #e6f4fe;
+      --border-ocean: rgba(2, 132, 199, 0.2);
+      --text-primary: #0c2d48;
+      --text-secondary: #335c81;
+      --text-muted: #64748b;
+      --zone-bg: linear-gradient(180deg, #bae6fd 0%, #f0f9ff 100%);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+      background: var(--zone-bg);
+      background-attachment: fixed;
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+      transition: background 0.4s ease, color 0.3s ease;
+    }
+
+    .mono { font-family: 'JetBrains Mono', monospace; }
+
+    /* Top Navigation */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 28px;
+      background: rgba(7, 20, 38, 0.82);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-ocean);
+    }
+    body.light-mode .topbar { background: rgba(255, 255, 255, 0.86); }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 1.15rem;
+      letter-spacing: -0.02em;
+    }
+    .brand-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 14px var(--accent);
+    }
+
+    .top-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+    .depth-pill {
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid var(--accent);
+      color: var(--text-primary);
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 16px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+    }
+    .btn:hover:not(:disabled) { transform: translateY(-1px); }
+    .btn-primary {
+      background: var(--accent);
+      color: #ffffff;
+      box-shadow: 0 4px 16px var(--accent-soft);
+    }
+    .btn-outline {
+      background: transparent;
+      border-color: var(--border-ocean);
+      color: var(--text-primary);
+    }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    /* Main container */
+    .container {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 32px 24px 64px;
+    }
+
+    .hero {
+      padding: 32px;
+      border-radius: 20px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-ocean);
+      margin-bottom: 32px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -60px;
+      top: -60px;
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--accent-soft) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero h1 { font-size: clamp(1.5rem, 3vw, 2.2rem); margin-bottom: 10px; }
+    .hero p { color: var(--text-secondary); max-width: 720px; margin-bottom: 20px; }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin: 36px 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-title span.bar {
+      width: 5px;
+      height: 22px;
+      border-radius: 99px;
+      background: var(--accent);
+    }
+
+    /* 5 Ocean Zones Interactive Map */
+    .zones-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 16px;
+    }
+    .zone-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-ocean);
+      border-top: 4px solid var(--card-accent);
+      border-radius: 16px;
+      padding: 18px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    .zone-card:hover, .zone-card.active {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
+      border-color: var(--card-accent);
+    }
+    .zone-depth {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--card-accent);
+      margin-bottom: 6px;
+    }
+    .zone-card h3 { font-size: 1.02rem; margin-bottom: 6px; }
+    .zone-card p { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 14px; }
+    .progress-track {
+      height: 7px;
+      border-radius: 99px;
+      background: rgba(148, 184, 215, 0.18);
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 99px;
+      background: var(--card-accent);
+    }
+
+    /* Two column layout for components & preview */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    .panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-ocean);
+      border-radius: 16px;
+      padding: 22px;
+    }
+    .panel h3 { font-size: 1.05rem; margin-bottom: 14px; }
+
+    /* Badges for 9 required states */
+    .badge-list { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+    .badge {
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border: 1px solid transparent;
+    }
+    .b-success { background: rgba(16, 185, 129, 0.16); color: #34d399; border-color: rgba(16, 185, 129, 0.35); }
+    .b-warning { background: rgba(245, 158, 11, 0.16); color: #fbbf24; border-color: rgba(245, 158, 11, 0.35); }
+    .b-danger  { background: rgba(244, 63, 94, 0.16);  color: #fb7185; border-color: rgba(244, 63, 94, 0.35); }
+    .b-info    { background: rgba(56, 189, 248, 0.16); color: #38bdf8; border-color: rgba(56, 189, 248, 0.35); }
+    .b-muted   { background: rgba(100, 116, 139, 0.18); color: #94a3b8; border-color: rgba(148, 163, 184, 0.3); }
+    .b-archive { background: transparent; color: var(--text-muted); border: 1px dashed var(--text-muted); }
+
+    body.light-mode .b-success { color: #047857; }
+    body.light-mode .b-warning { color: #b45309; }
+    body.light-mode .b-danger  { color: #be123c; }
+    body.light-mode .b-info    { color: #0369a1; }
+
+    /* Sonar Pulse Mockup (Teaching Method 1 & 2) */
+    .word-mockup {
+      background: #ffffff;
+      color: #0f172a;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #cbd5e1;
+    }
+    .word-ribbon {
+      background: #f1f5f9;
+      padding: 10px 14px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      border-bottom: 1px solid #e2e8f0;
+      flex-wrap: wrap;
+    }
+    .ribbon-btn {
+      position: relative;
+      padding: 5px 10px;
+      border-radius: 6px;
+      border: 1px solid #cbd5e1;
+      background: #fff;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #334155;
+    }
+    .ribbon-btn.sonar-target {
+      border-color: var(--accent);
+      color: var(--accent);
+      box-shadow: 0 0 0 0 var(--accent);
+      animation: sonarPulse 1.8s infinite;
+    }
+    @keyframes sonarPulse {
+      0% { box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.55); }
+      70% { box-shadow: 0 0 0 12px rgba(14, 165, 233, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(14, 165, 233, 0); }
+    }
+    .word-doc {
+      padding: 16px;
+      font-size: 0.88rem;
+      color: #334155;
+    }
+    .kbd {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 6px;
+      background: var(--bg-surface-2);
+      border: 1px solid var(--border-ocean);
+      color: var(--text-primary);
+      font-size: 0.78rem;
+    }
+
+    /* Loading skeleton */
+    .skeleton {
+      height: 14px;
+      border-radius: 8px;
+      background: linear-gradient(90deg, rgba(148,184,215,0.1) 25%, rgba(56,189,248,0.22) 50%, rgba(148,184,215,0.1) 75%);
+      background-size: 200% 100%;
+      animation: wave 1.6s infinite linear;
+      margin-bottom: 10px;
+    }
+    @keyframes wave {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* Roles strip */
+    .roles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 14px;
+    }
+    .role-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-ocean);
+      border-radius: 14px;
+      padding: 16px;
+    }
+    .role-card strong { display: block; margin-bottom: 4px; color: var(--accent); }
+    .role-card p { font-size: 0.84rem; color: var(--text-secondary); }
+
+    /* Boss Battle Preview */
+    .boss-arena {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-ocean);
+      border-radius: 18px;
+      padding: 22px;
+      display: grid;
+      grid-template-columns: 1fr 1.25fr;
+      gap: 22px;
+      align-items: center;
+    }
+    @media (max-width: 780px) {
+      .boss-arena { grid-template-columns: 1fr; }
+    }
+    .boss-stage {
+      background: radial-gradient(circle at 50% 35%, var(--accent-soft), rgba(2, 8, 23, 0.72));
+      border: 1px solid var(--border-ocean);
+      border-radius: 14px;
+      padding: 20px;
+      text-align: center;
+    }
+    .boss-avatar {
+      font-size: 3.4rem;
+      line-height: 1;
+      margin-bottom: 10px;
+      display: inline-block;
+      transition: transform 0.2s ease;
+    }
+    .boss-avatar.hit { animation: bossShake 0.35s ease; }
+    @keyframes bossShake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-8px) rotate(-4deg); }
+      75% { transform: translateX(8px) rotate(4deg); }
+    }
+    .hp-bar-wrap { margin: 12px 0 6px; text-align: left; }
+    .hp-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+    .hp-track {
+      height: 10px;
+      border-radius: 99px;
+      background: rgba(148, 184, 215, 0.16);
+      overflow: hidden;
+    }
+    .hp-fill {
+      height: 100%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, #f43f5e, #fb7185);
+      transition: width 0.35s ease;
+    }
+    .oxy-fill {
+      height: 100%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, #0ea5e9, #2dd4bf);
+      transition: width 0.35s ease;
+    }
+    .quiz-options {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .quiz-opt {
+      text-align: left;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border-ocean);
+      background: var(--bg-surface-2);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+    .quiz-opt:hover { border-color: var(--accent); }
+    .boss-feedback {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 0.84rem;
+      display: none;
+    }
+    .boss-feedback.show { display: block; }
+    .boss-feedback.ok { background: rgba(16, 185, 129, 0.16); border: 1px solid rgba(16, 185, 129, 0.4); }
+    .boss-feedback.err { background: rgba(244, 63, 94, 0.16); border: 1px solid rgba(244, 63, 94, 0.4); }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-dot"></span>
+      <span>TinHocPortal <span style="font-weight:400; color: var(--text-secondary);">| Ocean Depth UI</span></span>
+    </div>
+    <div class="top-actions">
+      <span id="currentDepthPill" class="depth-pill mono">Tầng 1 • 0m – 200m</span>
+      <button id="toggleThemeBtn" class="btn btn-outline" type="button">Đổi Sáng / Tối</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <h1 id="heroTitle">Khám phá Tin học đại cương qua 5 Tầng Đại Dương</h1>
+      <p id="heroDesc">
+        Bấm vào từng tầng đại dương bên dưới để xem giao diện tự động cá nhân hóa màu sắc, độ sâu và chủ đề chương học. Đây là bản xem trước Design System chuẩn trước khi đưa lên Figma/Canva và code các màn hình.
+      </p>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn btn-primary" type="button">Bắt đầu lặn học ngay</button>
+        <button class="btn btn-outline" type="button">Xem bài thực hành mẫu</button>
+        <button class="btn btn-outline" type="button" disabled>Tầng chưa mở khóa</button>
+      </div>
+    </section>
+
+    <h2 class="section-title"><span class="bar"></span>1. Cá nhân hóa theo 5 Tầng Đại Dương (Bấm để đổi theme)</h2>
+    <section class="zones-grid" id="zonesGrid">
+      <article class="zone-card active" style="--card-accent: var(--zone-1);" data-zone="1">
+        <div class="zone-depth mono">0m – 200m • SUNLIGHT</div>
+        <h3>Chương 1: Hệ điều hành & Cơ bản</h3>
+        <p>Vùng nước sáng trong, làm quen máy tính, tệp tin và thao tác hệ điều hành.</p>
+        <div class="progress-track"><div class="progress-fill" style="width: 100%;"></div></div>
+      </article>
+
+      <article class="zone-card" style="--card-accent: var(--zone-2);" data-zone="2">
+        <div class="zone-depth mono">200m – 1.000m • TWILIGHT</div>
+        <h3>Chương 2: Tin học văn phòng</h3>
+        <p>Khám phá tầng chạng vạng với mô phỏng Word, Excel, PowerPoint từng bước.</p>
+        <div class="progress-track"><div class="progress-fill" style="width: 65%;"></div></div>
+      </article>
+
+      <article class="zone-card" style="--card-accent: var(--zone-3);" data-zone="3">
+        <div class="zone-depth mono">1.000m – 4.000m • MIDNIGHT</div>
+        <h3>Chương 3: Mạng & Internet</h3>
+        <p>Dòng hải lưu dữ liệu, giao thức mạng, cáp quang biển và dịch vụ trực tuyến.</p>
+        <div class="progress-track"><div class="progress-fill" style="width: 30%;"></div></div>
+      </article>
+
+      <article class="zone-card" style="--card-accent: var(--zone-4);" data-zone="4">
+        <div class="zone-depth mono">4.000m – 6.000m • ABYSSAL</div>
+        <h3>Chương 4: An toàn thông tin</h3>
+        <p>Tàu ngầm chịu áp suất cao: bảo mật mật khẩu, chống lừa đảo và bảo vệ dữ liệu.</p>
+        <div class="progress-track"><div class="progress-fill" style="width: 10%;"></div></div>
+      </article>
+
+      <article class="zone-card" style="--card-accent: var(--zone-5);" data-zone="5">
+        <div class="zone-depth mono">6.000m – 11.000m • HADAL</div>
+        <h3>Chương 5: Tư duy thuật toán</h3>
+        <p>Đỉnh cao thám hiểm rãnh đại dương: lưu đồ, phân rã bài toán và logic cơ bản.</p>
+        <div class="progress-track"><div class="progress-fill" style="width: 0%;"></div></div>
+      </article>
+    </section>
+
+    <h2 class="section-title"><span class="bar"></span>2. Thành phần UI & Trực quan hóa kiến thức</h2>
+    <section class="grid-2">
+      <div class="panel">
+        <h3>9 Trạng thái nghiệp vụ bắt buộc (Mục 07)</h3>
+        <div class="badge-list">
+          <span class="badge b-info">Đang tải</span>
+          <span class="badge b-muted">Rỗng</span>
+          <span class="badge b-success">Thành công</span>
+          <span class="badge b-danger">Lỗi</span>
+          <span class="badge b-muted">Vô hiệu hóa</span>
+          <span class="badge b-warning">Đang chờ</span>
+          <span class="badge b-danger">Bị từ chối</span>
+          <span class="badge b-success">Hoàn thành</span>
+          <span class="badge b-archive">Đã lưu trữ</span>
+        </div>
+
+        <h3 style="margin-top: 18px;">Trạng thái Đang tải (Ocean Wave Skeleton)</h3>
+        <div class="skeleton" style="width: 75%;"></div>
+        <div class="skeleton" style="width: 100%;"></div>
+        <div class="skeleton" style="width: 55%;"></div>
+      </div>
+
+      <div class="panel">
+        <h3>Mô phỏng phần mềm + Sóng Sonar gợi ý (Cách 1 & 2)</h3>
+        <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:12px;">
+          Bước 2/6: Nhấn nút <strong>Chèn Bảng (Table)</strong> hoặc dùng phím tắt <span class="kbd mono">Alt + N + T</span>
+        </p>
+        <div class="word-mockup">
+          <div class="word-ribbon">
+            <span class="ribbon-btn">Trang chủ</span>
+            <span class="ribbon-btn sonar-target">Chèn Bảng ▾</span>
+            <span class="ribbon-btn">Hình ảnh</span>
+            <span class="ribbon-btn">Biểu đồ</span>
+          </div>
+          <div class="word-doc">
+            <strong>Báo cáo thực hành Microsoft Word</strong><br />
+            Vùng soạn thảo luôn giữ nền trắng tương phản cao (WCAG AA) giúp sinh viên quan sát rõ thao tác mà không bị chói hoặc mỏi mắt.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <h2 class="section-title"><span class="bar"></span>3. Kiểm tra tổng kết chương: Đấu Trùm Cuối Tầng (Thử tương tác)</h2>
+    <section class="boss-arena">
+      <div class="boss-stage">
+        <div id="bossAvatar" class="boss-avatar">🦈</div>
+        <h3 id="bossName">Cá Mập Trắng Lớn</h3>
+        <p id="bossSub" class="mono" style="font-size:0.78rem; color:var(--accent); margin-top:2px;">Trùm Tầng Mặt Trời • 0m – 200m</p>
+
+        <div class="hp-bar-wrap">
+          <div class="hp-label"><span>HP Trùm cuối</span><span id="bossHpText" class="mono">100 / 100</span></div>
+          <div class="hp-track"><div id="bossHpBar" class="hp-fill" style="width: 100%;"></div></div>
+        </div>
+
+        <div class="hp-bar-wrap">
+          <div class="hp-label"><span>Oxy Tàu Lặn (Sinh viên)</span><span id="oxyText" class="mono">3 / 3</span></div>
+          <div class="hp-track"><div id="oxyBar" class="oxy-fill" style="width: 100%;"></div></div>
+        </div>
+
+        <button id="resetBossBtn" class="btn btn-outline" type="button" style="margin-top:12px; font-size:0.8rem; padding:6px 12px;">Hồi đầy HP / Thử lại</button>
+      </div>
+
+      <div>
+        <span class="badge b-warning" style="margin-bottom:10px; display:inline-block;">Câu hỏi tổng kết chương</span>
+        <h3 id="bossQuestion" style="font-size:1rem; margin-bottom:6px;">Phím tắt nào dùng để đóng nhanh cửa sổ ứng dụng đang mở trên Windows?</h3>
+        <div class="quiz-options" id="bossOptions"></div>
+        <div id="bossFeedback" class="boss-feedback"></div>
+      </div>
+    </section>
+
+    <h2 class="section-title"><span class="bar"></span>4. Cá nhân hóa trải nghiệm theo 4 Vai trò</h2>
+    <section class="roles-grid">
+      <div class="role-card">
+        <strong>Khách • Boong quan sát</strong>
+        <p>Cuộn khám phá tổng quan 5 tầng đại dương, làm thử 1 bài thực hành mẫu và gửi góp ý chủ đề.</p>
+      </div>
+      <div class="role-card">
+        <strong>Sinh viên • Nhà thám hiểm</strong>
+        <p>Thước đo độ sâu (m), Sơ đồ tư duy 5 tầng, mô phỏng Word/Excel/PPT, trắc nghiệm giải thích.</p>
+      </div>
+      <div class="role-card">
+        <strong>Giảng viên • Thuyền trưởng</strong>
+        <p>Sonar Dashboard theo dõi tiến độ lớp, soạn bài giảng/thực hành theo từng tầng và chấm bài.</p>
+      </div>
+      <div class="role-card">
+        <strong>Quản trị viên • Trạm kiểm soát</strong>
+        <p>Quản lý tài khoản, phân quyền, cấu hình chương trình học và danh mục phần mềm.</p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const ZONES = {
+      1: {
+        pill: 'Tầng 1 • 0m – 200m (Sunlight)',
+        accent: '#0ea5e9',
+        soft: 'rgba(14, 165, 233, 0.18)',
+        bgDark: 'linear-gradient(180deg, #0b3c5d 0%, #071426 100%)',
+        bgLight: 'linear-gradient(180deg, #bae6fd 0%, #f0f9ff 100%)',
+        title: 'Tầng Mặt Trời (0–200m) • Hệ điều hành & Cơ bản',
+        desc: 'Ánh sáng rực rỡ nhất đại dương — nơi sinh viên làm quen máy tính, quản lý tệp tin và thao tác hệ điều hành cơ bản.',
+        boss: {
+          icon: '🦈',
+          name: 'Cá Mập Trắng Lớn',
+          sub: 'Trùm Tầng Mặt Trời • 0m – 200m',
+          q: 'Phím tắt nào dùng để đóng nhanh cửa sổ ứng dụng đang mở trên Windows?',
+          opts: ['Ctrl + C', 'Alt + F4', 'Windows + E'],
+          ans: 1,
+          explain: 'Alt + F4 đóng nhanh cửa sổ ứng dụng hiện hành; Ctrl + C dùng để sao chép và Windows + E mở File Explorer.'
+        }
+      },
+      2: {
+        pill: 'Tầng 2 • 200m – 1.000m (Twilight)',
+        accent: '#3b82f6',
+        soft: 'rgba(59, 130, 246, 0.18)',
+        bgDark: 'linear-gradient(180deg, #0c2d5e 0%, #061224 100%)',
+        bgLight: 'linear-gradient(180deg, #bfdbfe 0%, #eff6ff 100%)',
+        title: 'Tầng Chạng Vạng (200–1.000m) • Tin học văn phòng',
+        desc: 'Lặn sâu hơn để làm chủ Word, Excel, PowerPoint qua các bài thực hành mô phỏng thao tác menu từng bước.',
+        boss: {
+          icon: '🦑',
+          name: 'Mực Khổng Lồ (Giant Squid)',
+          sub: 'Trùm Tầng Chạng Vạng • 200m – 1.000m',
+          q: 'Trong Microsoft Excel, hàm nào dùng để tính tổng các ô từ A1 đến A10?',
+          opts: ['=AVERAGE(A1:A10)', '=SUM(A1:A10)', '=COUNT(A1:A10)'],
+          ans: 1,
+          explain: '=SUM(A1:A10) tính tổng giá trị; AVERAGE tính trung bình cộng và COUNT đếm số ô chứa số.'
+        }
+      },
+      3: {
+        pill: 'Tầng 3 • 1.000m – 4.000m (Midnight)',
+        accent: '#06b6d4',
+        soft: 'rgba(6, 182, 212, 0.18)',
+        bgDark: 'linear-gradient(180deg, #083344 0%, #030b17 100%)',
+        bgLight: 'linear-gradient(180deg, #a5f3fc 0%, #ecfeff 100%)',
+        title: 'Tầng Nửa Đêm (1.000–4.000m) • Mạng máy tính & Internet',
+        desc: 'Khám phá những dòng hải lưu dữ liệu, địa chỉ IP, trình duyệt và cách thông tin di chuyển xuyên đại dương.',
+        boss: {
+          icon: '🐡',
+          name: 'Cá Cần Câu Vực Sâu (Anglerfish)',
+          sub: 'Trùm Tầng Nửa Đêm • 1.000m – 4.000m',
+          q: 'Giao thức nào giúp mã hóa dữ liệu truyền giữa trình duyệt và máy chủ web?',
+          opts: ['HTTP', 'HTTPS', 'FTP'],
+          ans: 1,
+          explain: 'HTTPS (HTTP Secure) sử dụng TLS/SSL để mã hóa dữ liệu, giúp bảo vệ thông tin khỏi bị nghe lén trên đường truyền.'
+        }
+      },
+      4: {
+        pill: 'Tầng 4 • 4.000m – 6.000m (Abyssal)',
+        accent: '#14b8a6',
+        soft: 'rgba(20, 184, 166, 0.18)',
+        bgDark: 'linear-gradient(180deg, #042f2e 0%, #020817 100%)',
+        bgLight: 'linear-gradient(180deg, #99f6e4 0%, #f0fdfa 100%)',
+        title: 'Tầng Vực Thẳm (4.000–6.000m) • An toàn thông tin',
+        desc: 'Khu vực áp suất cao đòi hỏi lớp giáp vững chắc: mật khẩu mạnh, nhận diện lừa đảo và bảo vệ quyền riêng tư.',
+        boss: {
+          icon: '🐟',
+          name: 'Cá Răng Nanh Vực Thẳm (Fangtooth)',
+          sub: 'Trùm Tầng Vực Thẳm • 4.000m – 6.000m',
+          q: 'Hành vi giả mạo email ngân hàng để đánh cắp mật khẩu được gọi là gì?',
+          opts: ['Phishing (Lừa đảo trực tuyến)', 'Defragment', 'Backup'],
+          ans: 0,
+          explain: 'Phishing là hình thức giả mạo tổ chức uy tín qua email/tin nhắn để lừa người dùng cung cấp mật khẩu hoặc mã OTP.'
+        }
+      },
+      5: {
+        pill: 'Tầng 5 • 6.000m – 11.000m (Hadal)',
+        accent: '#8b5cf6',
+        soft: 'rgba(139, 92, 246, 0.2)',
+        bgDark: 'linear-gradient(180deg, #1e1b4b 0%, #020617 100%)',
+        bgLight: 'linear-gradient(180deg, #ddd6fe 0%, #f5f3ff 100%)',
+        title: 'Tầng Rãnh Đại Dương (>6.000m) • Tư duy thuật toán',
+        desc: 'Đỉnh cao thám hiểm với ánh sáng phát quang sinh học: rèn luyện tư duy logic, lưu đồ và phân rã vấn đề.',
+        boss: {
+          icon: '🐉',
+          name: 'Cá Ốc Rãnh Mariana (Mariana Snailfish)',
+          sub: 'Trùm Rãnh Đại Dương • 6.000m – 11.000m',
+          q: 'Trong lưu đồ thuật toán (Flowchart), hình thoi (Diamond) biểu thị thao tác nào?',
+          opts: ['Nhập / Xuất dữ liệu', 'Kiểm tra điều kiện rẽ nhánh (Đúng/Sai)', 'Kết thúc thuật toán'],
+          ans: 1,
+          explain: 'Hình thoi biểu diễn khối quyết định (Decision) kiểm tra điều kiện Đúng/Sai để rẽ nhánh luồng thực thi.'
+        }
+      }
+    };
+
+    let activeZone = 1;
+    let bossHp = 100;
+    let oxy = 3;
+    const root = document.documentElement;
+    const pill = document.getElementById('currentDepthPill');
+    const heroTitle = document.getElementById('heroTitle');
+    const heroDesc = document.getElementById('heroDesc');
+    const bossAvatar = document.getElementById('bossAvatar');
+    const bossName = document.getElementById('bossName');
+    const bossSub = document.getElementById('bossSub');
+    const bossHpBar = document.getElementById('bossHpBar');
+    const bossHpText = document.getElementById('bossHpText');
+    const oxyBar = document.getElementById('oxyBar');
+    const oxyText = document.getElementById('oxyText');
+    const bossQuestion = document.getElementById('bossQuestion');
+    const bossOptions = document.getElementById('bossOptions');
+    const bossFeedback = document.getElementById('bossFeedback');
+
+    function updateBossBars() {
+      bossHpBar.style.width = `${bossHp}%`;
+      bossHpText.textContent = `${bossHp} / 100`;
+      oxyBar.style.width = `${(oxy / 3) * 100}%`;
+      oxyText.textContent = `${oxy} / 3`;
+    }
+
+    function renderBoss(z) {
+      bossHp = 100;
+      oxy = 3;
+      updateBossBars();
+      bossAvatar.textContent = z.boss.icon;
+      bossName.textContent = z.boss.name;
+      bossSub.textContent = z.boss.sub;
+      bossQuestion.textContent = z.boss.q;
+      bossFeedback.className = 'boss-feedback';
+      bossFeedback.textContent = '';
+
+      bossOptions.innerHTML = '';
+      z.boss.opts.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'quiz-opt';
+        btn.textContent = `${String.fromCharCode(65 + idx)}. ${opt}`;
+        btn.addEventListener('click', () => {
+          if (idx === z.boss.ans) {
+            bossHp = Math.max(0, bossHp - 50);
+            bossAvatar.classList.remove('hit');
+            void bossAvatar.offsetWidth;
+            bossAvatar.classList.add('hit');
+            bossFeedback.className = 'boss-feedback show ok';
+            bossFeedback.innerHTML = `<strong>Chính xác! Sóng Sonar gây -50 HP cho ${z.boss.name}.</strong><br>${z.boss.explain}`;
+          } else {
+            oxy = Math.max(0, oxy - 1);
+            bossFeedback.className = 'boss-feedback show err';
+            bossFeedback.innerHTML = `<strong>Trùm phản công! Mất 1 bình Oxy.</strong><br>Giải thích: ${z.boss.explain}`;
+          }
+          updateBossBars();
+        });
+        bossOptions.appendChild(btn);
+      });
+    }
+
+    function applyZone(zoneId) {
+      activeZone = zoneId;
+      const z = ZONES[zoneId];
+      const isLight = document.body.classList.contains('light-mode');
+      root.style.setProperty('--accent', z.accent);
+      root.style.setProperty('--accent-soft', z.soft);
+      root.style.setProperty('--zone-bg', isLight ? z.bgLight : z.bgDark);
+      pill.textContent = z.pill;
+      heroTitle.textContent = z.title;
+      heroDesc.textContent = z.desc;
+
+      document.querySelectorAll('.zone-card').forEach(card => {
+        card.classList.toggle('active', Number(card.dataset.zone) === zoneId);
+      });
+      renderBoss(z);
+    }
+
+    document.querySelectorAll('.zone-card').forEach(card => {
+      card.addEventListener('click', () => applyZone(Number(card.dataset.zone)));
+    });
+
+    document.getElementById('toggleThemeBtn').addEventListener('click', () => {
+      document.body.classList.toggle('light-mode');
+      applyZone(activeZone);
+    });
+
+    document.getElementById('resetBossBtn').addEventListener('click', () => {
+      renderBoss(ZONES[activeZone]);
+    });
+
+    applyZone(1);
+  </script>
+</body>
+</html>
