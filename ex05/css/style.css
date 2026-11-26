@@ -1,0 +1,25 @@
+h1{
+    color: #C2185B;
+    font-size: 26px;
+    text-align: center;
+    margin: 0 0 22px; 
+}
+
+.nhan-muc{
+    background-color: #FFC0CB;
+    color: black;
+    font-style: bold;
+    display: inline;
+    padding: 4px 10px;
+    font-size: 16px;
+}
+
+.ds-vuong{
+    line-height: 1.9;
+    list-style-type: square;
+}
+
+.ds-tron{
+    line-height: 1.9;
+    list-style-type: circle;
+}
