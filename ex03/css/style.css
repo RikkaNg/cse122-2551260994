@@ -1,0 +1,82 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 24px 16px;
+    min-height: 100vh;
+    background: linear-gradient(180deg, #7ec8e3, #0a5c8a);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: "Times New Roman", Times, serif;
+    color: #222222;
+}
+
+.bai-viet {
+    background-color: rgba(255, 255, 255, 0.95);
+    width: 820px;
+    max-width: 100%;
+    border-radius: 10px;
+    padding: 28px;
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.28);
+}
+
+.tieu-de {
+    margin: 0 0 18px 0;
+    text-align: center;
+    color: #0b3d5c;
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.sapo {
+    margin: 0 0 22px 0;
+    background-color: #0b3d5c;
+    color: #FFFFFF;
+    font-style: italic;
+    padding: 14px 18px;
+    border-radius: 6px;
+}
+
+.noi-dung {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+}
+
+.van-ban {
+    flex: 1;
+}
+
+p.than-bai {
+    margin: 0 0 16px 0;
+    line-height: 1.65;
+    font-size: 1rem;
+    text-align: left;
+}
+
+p.than-bai:last-child {
+    margin-bottom: 0;
+}
+
+p.than-bai::first-letter {
+    color: #0b3d5c;
+    font-size: 3rem;
+    font-weight: bold;
+    float: left;
+    line-height: 0.85;
+    padding: 0.1rem 0.4rem 0 0;
+}
+
+.anh-minh-hoa {
+    width: 270px;
+    height: 185px;
+    object-fit: cover;
+    border-radius: 8px;
+    flex-shrink: 0;
+    display: block;
+}
+
+
