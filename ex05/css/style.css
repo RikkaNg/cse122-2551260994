@@ -1,25 +1,67 @@
-h1{
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 24px 16px;
+    background-color: #FFFFFF;
+    color: #000000;
+    font-family: "Times New Roman", Times, serif;
+}
+
+.container {
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+h1 {
     color: #C2185B;
     font-size: 26px;
     text-align: center;
-    margin: 0 0 22px; 
+    margin: 0 0 22px;
 }
 
-.nhan-muc{
+.bo-cuc-2-cot {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+.anh-hoa {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.nhan-muc {
     background-color: #FFC0CB;
-    color: black;
-    font-style: bold;
-    display: inline;
+    color: #000000;
+    font-weight: bold;
+    display: inline-block;
     padding: 4px 10px;
     font-size: 16px;
+    margin: 0 0 8px;
 }
 
-.ds-vuong{
+.ds-vuong {
     line-height: 1.9;
     list-style-type: square;
+    margin: 0 0 18px;
+    padding-left: 24px;
 }
 
-.ds-tron{
+.ds-tron {
     line-height: 1.9;
     list-style-type: circle;
+    margin: 0 0 20px;
+    padding-left: 24px;
+}
+
+.ban-quyen {
+    color: #0000EE;
+    text-decoration: underline;
+    text-align: center;
+    margin: 16px 0 0;
 }
